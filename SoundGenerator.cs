@@ -78,7 +78,7 @@ public class Sine : MonoBehaviour
     {
         p = pitch;
         duration = 480f / (float)(BPM * figura);
-        if (acorde) maxAmplitude *= 0.8f;
+        if (acorde) maxAmplitude *= 0.5f;
         noteOn = true;
         envelopeTime = 0.0f;
     }
