@@ -2,13 +2,29 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class PianoRoll : MonoBehaviour
+public class PianoRoll : ScriptableObject
 {
-    private (int p, int figura)[][] seccion;
+    public (int p, int figura)[][] seccion;
+    public int largo;
+    public SongStructure songStructure;
+    private int key;
 
-    public void Start()
+    public void Empezar(int k)
     {
+        key = k;
+        songStructure = ScriptableObject.CreateInstance<SongStructure>();
+        songStructure.Initialize();
+        largo = 0;
+        foreach (var progression in songStructure.chordProgressions)
+        {
+            foreach (var chord in progression.chords)
+            {
+                largo += 8;
+            }
+        }
+        largo++;
         Inicializar(ref seccion);
+        Actualizar();
     }
 
     void Inicializar(ref (int p, int figura)[][] seccion)
@@ -16,10 +32,10 @@ public class PianoRoll : MonoBehaviour
         seccion = new (int p, int figura)[8][];
         for (int i = 0; i < 8; i++)
         {
-            seccion[i] = new (int p, int figura)[8];
-            for (int j = 0; j < 8; j++)
+            seccion[i] = new (int p, int figura)[largo];
+            for (int j = 0; j < largo; j++)
             {
-                seccion[i][j] = (0, 0); // Inicializar cada tupla con (0, 0)
+                seccion[i][j] = (0, 0);
             }
         }
     }
@@ -35,55 +51,42 @@ public class PianoRoll : MonoBehaviour
         {
             return seccion[y][x];
         }
-        return (0, 0); // Nota por defecto si está fuera de los límites
+        return (0, 0);
     }
 
-    public void Actualizar(int iteraciones)
+    public void Actualizar()
     {
         Inicializar(ref seccion);
-        if (iteraciones == 0) {
-            Llenar((12, 4),0,0);
-            Llenar((0, 2),2,0);
-            Llenar((4, 2),3,0);
-            Llenar((7, 2),4,0);
-            Llenar((16, 4),0,2);
-            Llenar((19, 4),0,4);
-            Llenar((12, 4),0,4);
-            Llenar((17, 4),0,6);
-            Llenar((18, 4),0,7);
-        } else if (iteraciones == 1){
-            Llenar((2, 2),2,0);
-            Llenar((5, 2),3,0);
-            Llenar((7, 2),4,0);
-            Llenar((11, 2),5,0);
-        } else if (iteraciones == 2){
-            Llenar((0, 2),2,0);
-            Llenar((4, 2),3,0);
-            Llenar((9, 2),4,0);
-        } else if (iteraciones == 3){
-            Llenar((5, 2),2,0);
-            Llenar((9, 2),3,0);
-            Llenar((0, 2),4,0);
-        }
-        
-    }
 
-    private (int p, int figura)[][] CopiarMatriz((int p, int figura)[][] matrizOriginal)
-    {
-        (int p, int figura)[][] nuevaMatriz = new (int p, int figura)[matrizOriginal.Length][];
-        for (int i = 0; i < matrizOriginal.Length; i++)
+        int estamos = 0;
+        foreach (var progression in songStructure.chordProgressions)
         {
-            nuevaMatriz[i] = new (int p, int figura)[matrizOriginal[i].Length];
-        }
-
-        for (int i = 0; i < matrizOriginal.Length; i++)
-        {
-            for (int j = 0; j < matrizOriginal[i].Length; j++)
+            key += 0;
+            foreach (var chord in progression.chords)
             {
-                nuevaMatriz[i][j] = matrizOriginal[i][j];
+                List<int> intervalos = chord.notes;
+                intervalos.Add(intervalos[0] + 12);
+
+                for (int i = 0; i < chord.notes.Count; i++)
+                {
+                    Llenar(((chord.notes[i] + key) % 12, 1), estamos * 8, 2 + i);
+                }
+                for(int i = 0; i < 8; i++)
+                {
+                    if (Random.Range(0,2) == 0 || i == 0)
+                    {
+                        Llenar(((intervalos[Random.Range(0, intervalos.Count)] + key) % 12, 4), estamos * 8 + i, 0);
+                    }
+                }
+                estamos++;
             }
         }
-
-        return nuevaMatriz;
+        List<int> ultimoAcorde = songStructure.chordProgressions[0].chords[0].notes;
+        for (int i = 0; i < ultimoAcorde.Count; i++)
+        {
+            Llenar((ultimoAcorde[i], 1), estamos * 8, 2 + i);
+        }
+        Llenar((ultimoAcorde[0] + 12, 4), estamos * 8, 0);
     }
 }
+
