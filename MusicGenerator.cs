@@ -1,41 +1,38 @@
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 
-public class MusicGenerator : MonoBehaviour
+public class ProceduralMusicGenerator : MonoBehaviour
 {
-    public PianoRoll pianoRoll;
     public GameObject sinePrefab;
-    public int BPM = 120; // Puedes ajustar esto según tus necesidades
-    public int iteraciones;
+    public PianoRoll pianoroll;
+    public bool SeRepite = true;
+    public int key;
 
     void Start()
     {
-        StartCoroutine(Proceso());
+        key = Random.Range(0, 12);
+        pianoroll = ScriptableObject.CreateInstance<PianoRoll>();
+        pianoroll.Empezar(key);
+        StartCoroutine(GenerateMusic());
     }
 
-    IEnumerator Proceso()
+    IEnumerator GenerateMusic()
     {
-        pianoRoll.Start();
-        while (iteraciones < 4)
+        while(SeRepite)
         {
-            pianoRoll.Actualizar(iteraciones);
-            for (int y = 0; y < 8; y++)
+            for (int i = 0; i < pianoroll.largo; i++)
             {
-                for (int x = 0; x < 8; x++)
+                for (int j = 0; j < 8; j++)
                 {
-                    //Debug.LogWarning(x + ", " + y);
-                    var nota = pianoRoll.GetNota(x, y);
-                    if (nota == (0, 0)) continue;
+                    var nota = pianoroll.seccion[j][i];
+                    if (nota == (0, 0)) { continue; }
                     GameObject sineObj = Instantiate(sinePrefab);
                     Sine sine = sineObj.GetComponent<Sine>();
-                    sine.maxAmplitude = 0.5f;
-                    sine.PlayNote(2, BPM, nota.p, y > 1);
+                    sine.PlayNote(nota.figura, pianoroll.songStructure.BPM, nota.p, j >= 2);
                     StartCoroutine(DestroyAfterTime(sineObj, sine.duration));
                 }
-                yield return new WaitForSeconds(60f / BPM);
+                yield return new WaitForSeconds(60f / (float)(pianoroll.songStructure.BPM)); // Asume que cada acorde dura una medida
             }
-            iteraciones++;
         }
     }
 
