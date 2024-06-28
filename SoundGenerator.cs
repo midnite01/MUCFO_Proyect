@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using System.Linq;
 
 public class Sine : MonoBehaviour
 {
@@ -40,6 +41,7 @@ public class Sine : MonoBehaviour
         // Calcula la frecuencia con el par�metro p
         float frequency = 440 * Mathf.Pow(2, (float)(p - 9) / 12.0f);
         increment = frequency * 2 * Math.PI / samplingFrequency;
+        float[] amp_rel = Enumerable.Range(1, 30).Select(i => 1f / i).ToArray();
 
         for (int i = 0; i < data.Length; i += channels)
         {
@@ -50,13 +52,14 @@ public class Sine : MonoBehaviour
                 envelopeAmplitude = envelopeCurve.Evaluate(envelopeTime / duration) * maxAmplitude;
             }
             float sinAmplitude;
-            // Calcula la amplitud del tono sinusoide o triangular o cuadrado
-            if (Mathf.Sin((float)phase) >= 0)
-            { sinAmplitude = (float)maxAmplitude * 0.1f; }
-            else
-            { sinAmplitude = -(float)maxAmplitude * 0.1f; }
-            //sinAmplitude = (float)(maxAmplitude * (double)Mathf.PingPong((float)phase,  1.0f));
-            //sinAmplitude = (float)(maxAmplitude * (double)Math.Sin((float)phase));
+            
+            // Calcula la amplitud del tono
+            double harmonicos = 0;
+            for (int j = 0; j < amp_rel.Length; j++)
+            {
+                harmonicos += amp_rel[j] * Math.Sin((j+1)*phase);
+            }
+            sinAmplitude = (float)(maxAmplitude * harmonicos);
 
             // Aplica el envelope a la amplitud del tono
             float sampleAmplitude = sinAmplitude * envelopeAmplitude;
