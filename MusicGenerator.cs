@@ -28,7 +28,7 @@ public class ProceduralMusicGenerator : MonoBehaviour
                     if (nota == (0, 0)) { continue; }
                     GameObject sineObj = Instantiate(sinePrefab);
                     Sine sine = sineObj.GetComponent<Sine>();
-                    sine.PlayNote(nota.figura, pianoroll.songStructure.BPM, nota.p, j >= 2);
+                    sine.PlayNote(nota.figura, pianoroll.songStructure.BPM, nota.p, j >= 2, "r"); //Generará ondas tipo Sawtooth
                     StartCoroutine(DestroyAfterTime(sineObj, sine.duration));
                 }
                 yield return new WaitForSeconds(60f / (float)(pianoroll.songStructure.BPM)); // Asume que cada acorde dura una medida
