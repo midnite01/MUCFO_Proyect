@@ -21,6 +21,7 @@ public class Sine : MonoBehaviour
     private bool noteOn = false;
     private float envelopeAmplitude = 0f;
     private float envelopeTime = 0.0f;
+    private string tipo = "s";
 
     void Start()
     {
@@ -55,9 +56,27 @@ public class Sine : MonoBehaviour
             
             // Calcula la amplitud del tono
             double harmonicos = 0;
-            for (int j = 0; j < amp_rel.Length; j++)
+            /*for (int j = 0; j < amp_rel.Length; j++)
             {
                 harmonicos += amp_rel[j] * Math.Sin((j+1)*phase);
+            }*/
+            
+            switch (tipo)
+            {
+                case "s":
+                    harmonicos = Math.Sin(phase);
+                    break;
+                case "r":
+                    harmonicos = phase % (4*Math.PI) - 2*Math.PI;
+                    break;
+                case "p":
+                    double d = 0.5;
+                    double f = Math.Sin(Math.PI*(phase + d - 0.5)) - Math.Sin(Math.PI*(d-0.5));
+                    harmonicos = Math.Max(0, Math.Min(1, 1 + Math.Floor(f)));
+                    break;
+                default:
+                    harmonicos = 0;
+                    break;
             }
             sinAmplitude = (float)(maxAmplitude * harmonicos);
 
@@ -77,12 +96,13 @@ public class Sine : MonoBehaviour
     }
 
     // M�todo para iniciar una nota
-    public void PlayNote(float figura, int BPM, int pitch, bool acorde)
+    public void PlayNote(float figura, int BPM, int pitch, bool acorde, string tipo_)
     {
         p = pitch;
         duration = 480f / (float)(BPM * figura);
         if (acorde) maxAmplitude *= 0.5f;
         noteOn = true;
         envelopeTime = 0.0f;
+        tipo = tipo_;
     }
 }
