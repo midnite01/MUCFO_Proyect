@@ -9,11 +9,11 @@ public class PianoRoll : ScriptableObject
     public SongStructure songStructure;
     private int key;
 
-    public void Empezar(int k)
+    public void Empezar(int k, string emocion)
     {
         key = k;
         songStructure = ScriptableObject.CreateInstance<SongStructure>();
-        songStructure.Initialize();
+        songStructure.Initialize(emocion);
         largo = 0;
         foreach (var progression in songStructure.chordProgressions)
         {
