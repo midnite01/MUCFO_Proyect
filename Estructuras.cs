@@ -5,11 +5,11 @@ using System.Linq;
 [CreateAssetMenu(fileName = "NewSongStructure", menuName = "Music/SongStructure")]
 public class SongStructure : ScriptableObject
 {
-    public int BPM = 360;
+    public int BPM;
     public int[] structure;
     public List<ChordProgression> chordProgressions;
 
-    public void Initialize()
+    public void Initialize(string emocion)
     {
         GenerateRandomStructure();
         chordProgressions = new List<ChordProgression>();
@@ -20,11 +20,37 @@ public class SongStructure : ScriptableObject
         // Crear una lista para verificar qué progresiones ya se han usado
         HashSet<int> usedProgressions = new HashSet<int>();
 
+        // Definir los índices de rango según la emoción
+        int startIdx = 0;
+        int endIdx = 0;
+
+        //Para escoger progresión acorde
+        if (emocion == "aleg" || emocion == "calm")// "trst" "tnso" "calm"
+        {
+            startIdx = 0;
+            endIdx = 11;
+        }
+        else if (emocion == "trst" || emocion == "tnso")
+        {
+            startIdx = 9;
+            endIdx = 17;
+        }
+
+        //Para escoger BMP
+        if (emocion == "aleg" || emocion == "tnso")
+        {
+            BPM = 90;
+        }
+        else if (emocion == "trst" || emocion == "calm")
+        {
+            BPM = 60;
+        }
+
         foreach (int part in structure)
         {
             if (!partToProgressionMap.ContainsKey(part))
             {
-                int progressionIndex = GetUniqueRandomIndex(usedProgressions, 18);
+                int progressionIndex = GetUniqueRandomIndex(usedProgressions, startIdx, endIdx);
                 partToProgressionMap[part] = progressionIndex;
             }
 
@@ -55,7 +81,7 @@ public class SongStructure : ScriptableObject
         // Definimos algunos patrones posibles
         List<int[]> possibleStructures = new List<int[]>
         {
-            new int[] { 1, 1, 2, 1 },
+            /*new int[] { 1, 1, 2, 1 },
             new int[] { 1, 2, 1, 2 },
             new int[] { 1, 2, 3, 1, 2, 3 },
             new int[] { 1, 2, 1, 3 },
@@ -66,15 +92,9 @@ public class SongStructure : ScriptableObject
             new int[] { 1, 1, 3, 2, 2 },
             new int[] { 1, 3, 1, 2 },
             new int[] { 1, 1, 2, 2, 3, 3 },
-            new int[] { 1, 2, 3, 4, 1, 2, 3, 4 },
-            new int[] { 1, 2, 1, 2, 3, 4 },
             new int[] { 1, 2, 3, 1, 3, 2 },
-            new int[] { 1, 2, 3, 4, 5, 6 },
-            new int[] { 1, 1, 2, 3, 1, 3 },
-            new int[] { 1, 2, 3, 4, 2, 1 },
-            new int[] { 1, 2, 3, 3, 4, 5 },
-            new int[] { 1, 1, 2, 3, 4, 4 },
-            new int[] { 1, 2, 1, 3, 2, 4 }
+            new int[] { 1, 1, 2, 3, 1, 3 },*/
+            new int[] { 1},
         };
 
         // Seleccionamos un patrón aleatorio
@@ -82,12 +102,12 @@ public class SongStructure : ScriptableObject
         structure = possibleStructures[randomIndex];
     }
 
-    private int GetUniqueRandomIndex(HashSet<int> usedIndices, int max)
+    private int GetUniqueRandomIndex(HashSet<int> usedIndices, int startIdx, int endIdx)
     {
         int index;
         do
         {
-            index = Random.Range(0, max);
+            index = Random.Range(startIdx, endIdx + 1);
         } while (usedIndices.Contains(index));
 
         usedIndices.Add(index);
@@ -101,24 +121,24 @@ public class ChordProgression
     public List<Chord> chords = new List<Chord>();
     public (int root, string type)[][] posibleProgresion = new (int, string)[][]
     {
-        new (int, string)[] {(0, "m"), (3, "M"), (10, "M"), (5, "M")},
-        new (int, string)[] {(0, "m"), (10, "M"), (7, "m"), (8, "M")},
-        new (int, string)[] {(0, "M"), (7, "M"), (2, "m"), (5, "M")},
-        new (int, string)[] {(5, "M"), (0, "M"), (7, "M"), (9, "m")},
-        new (int, string)[] {(0, "M"), (5, "M"), (9, "m"), (7, "M")},
-        new (int, string)[] {(0, "M"), (0, "M"), (0, "M"), (0, "M"), (5, "M"), (5, "M"), (0, "M"), (0, "M"), (7, "M"), (5, "M"), (0, "M"), (0, "M")},
-        new (int, string)[] {(0, "M"), (2, "M"), (5, "M"), (0, "M")},
-        new (int, string)[] {(0, "M"), (7, "M"), (10, "M"), (5, "M")},
-        new (int, string)[] {(0, "M"), (2, "m"), (5, "M"), (7, "M")},
-        new (int, string)[] {(0, "M"), (5, "M"), (0, "M"), (7, "M")},
-        new (int, string)[] {(0, "m"), (1, "M")},
-        new (int, string)[] {(5, "M"), (0, "M"), (7, "M"), (7, "M")},
-        new (int, string)[] {(0, "m"), (0, "m"), (8, "M"), (7, "M")},
-        new (int, string)[] {(5, "M"), (7, "M"), (0, "M"), (9, "m")},
-        new (int, string)[] {(0, "M"), (5, "M"), (7, "M"), (5, "M")},
-        new (int, string)[] {(0, "m"), (5, "M")},
-        new (int, string)[] {(0, "m"), (6, "M"), (0, "M"), (0, "M")},
-        new (int, string)[] {(5, "M"), (10, "m7"), (3, "m6"), (2, "dim7"), (11, "dim7"), (0, "M")},
+        new (int, string)[] {(0, "M"), (0, "M"), (0, "M"), (0, "M"), (5, "M"), (5, "M"), (0, "M"), (0, "M"), (7, "M"), (5, "M"), (0, "M"), (0, "M")}, // Positivo
+        new (int, string)[] {(5, "M"), (0, "M"), (7, "M"), (9, "m")}, // Positivo
+        new (int, string)[] {(0, "M"), (5, "M"), (9, "m"), (7, "M")}, // Positivo
+        new (int, string)[] {(0, "M"), (2, "M"), (5, "M"), (0, "M")}, // Positivo
+        new (int, string)[] {(0, "M"), (2, "m"), (5, "M"), (7, "M")}, // Positivo
+        new (int, string)[] {(0, "M"), (5, "M"), (0, "M"), (7, "M")}, // Positivo
+        new (int, string)[] {(5, "M"), (0, "M"), (7, "M"), (7, "M")}, // Positivo
+        new (int, string)[] {(5, "M"), (7, "M"), (0, "M"), (9, "m")}, // Positivo
+        new (int, string)[] {(0, "M"), (5, "M"), (7, "M"), (5, "M")}, // Positivo
+        new (int, string)[] {(0, "M"), (7, "M"), (10, "M"), (5, "M")}, // Positivo / Negativo
+        new (int, string)[] {(0, "m"), (3, "M"), (10, "M"), (5, "M")}, // Positivo / Negativo
+        new (int, string)[] {(0, "m"), (5, "M")}, // Positivo / Negativo
+        new (int, string)[] {(0, "m"), (0, "m"), (8, "M"), (7, "M")}, // Negativo
+        new (int, string)[] {(0, "m"), (1, "M")}, // Negativo
+        new (int, string)[] {(0, "m"), (10, "M"), (7, "m"), (8, "M")}, // Negativo
+        new (int, string)[] {(0, "M"), (7, "M"), (2, "m"), (5, "M")}, // Negativo
+        new (int, string)[] {(0, "m"), (6, "M"), (0, "M"), (0, "M")}, // Negativo
+        new (int, string)[] {(5, "M"), (10, "m7"), (3, "m6"), (2, "dim7"), (11, "dim7"), (0, "M")}, // Negativo
     };
 }
 
