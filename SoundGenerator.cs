@@ -67,12 +67,15 @@ public class Sine : MonoBehaviour
                     harmonicos = Math.Sin(phase);
                     break;
                 case "r":
-                    harmonicos = phase % (4*Math.PI) - 2*Math.PI;
+                    harmonicos = (phase % (2*Math.PI)) / Math.PI - 1;
                     break;
                 case "p":
-                    double d = 0.5;
-                    double f = Math.Sin(Math.PI*(phase + d - 0.5)) - Math.Sin(Math.PI*(d-0.5));
+                    double d = envelopeTime*0.5 + 0.25;
+                    double f = Math.Sin(phase + d - 0.5) - Math.Sin(d-0.5);
                     harmonicos = Math.Max(0, Math.Min(1, 1 + Math.Floor(f)));
+                    break;
+                case "t":
+                    harmonicos = 2 * (Math.Abs(phase / Math.PI + 0.5 - 2*Math.Floor(0.5*phase/Math.PI + 0.75))-0.5);
                     break;
                 default:
                     harmonicos = 0;
@@ -96,13 +99,17 @@ public class Sine : MonoBehaviour
     }
 
     // M�todo para iniciar una nota
-    public void PlayNote(float figura, int BPM, int pitch, bool acorde, string tipo_)
+    public void PlayNote(float figura, int BPM, int pitch, bool acorde)
     {
         p = pitch;
-        duration = 480f / (float)(BPM * figura);
-        if (acorde) maxAmplitude *= 0.5f;
+        duration = 120f / (float)(BPM * figura);
+        if (acorde)
+        {
+            maxAmplitude *= 0.5f;
+            tipo = "t";
+        }
+        else { tipo = "p";}
         noteOn = true;
         envelopeTime = 0.0f;
-        tipo = tipo_;
     }
 }
