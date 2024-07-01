@@ -8,10 +8,13 @@ public class PianoRoll : ScriptableObject
     public int largo;
     public SongStructure songStructure;
     private int key;
+    public string emocionn;
+    public Chord ultimo;
 
     public void Empezar(int k, string emocion)
     {
         key = k;
+        emocionn = emocion;
         songStructure = ScriptableObject.CreateInstance<SongStructure>();
         songStructure.Initialize(emocion);
         largo = 0;
@@ -23,6 +26,7 @@ public class PianoRoll : ScriptableObject
             }
         }
         largo++;
+        ultimo = songStructure.chordProgressions[0].chords[0];
         Inicializar(ref seccion);
         Actualizar();
     }
@@ -81,12 +85,6 @@ public class PianoRoll : ScriptableObject
                 estamos++;
             }
         }
-        List<int> ultimoAcorde = songStructure.chordProgressions[0].chords[0].notes;
-        for (int i = 0; i < ultimoAcorde.Count; i++)
-        {
-            Llenar((ultimoAcorde[i], 1), estamos * 8, 2 + i);
-        }
-        Llenar((ultimoAcorde[0] + 12, 4), estamos * 8, 0);
     }
 }
 
