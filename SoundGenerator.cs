@@ -99,7 +99,7 @@ public class Sine : MonoBehaviour
     }
 
     // M�todo para iniciar una nota
-    public void PlayNote(float figura, int BPM, int pitch, bool acorde)
+    public void PlayNote(float figura, float BPM, int pitch, bool acorde)
     {
         p = pitch;
         duration = 120f / (float)(BPM * figura);
