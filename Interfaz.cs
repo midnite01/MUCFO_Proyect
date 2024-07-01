@@ -5,11 +5,13 @@ using UnityEngine;
 public class Circular : MonoBehaviour
 {
     public LineRenderer renderizador;
-    public float grosorLinea = 0.1f; // Ajusta el grosor de la línea
+    public float grosorLinea = 0.05f; // Ajusta el grosor de la línea
+    private Vector3 circlePosition;
+    Vector3 worldPosition;
 
     void Start()
     {
-        Dibujar(10, 0.05f, -2.5f, 2.5f);
+        Dibujar(10, 0.1f, 2.5f, -2.5f);
     }
 
     void Update()
@@ -19,13 +21,14 @@ public class Circular : MonoBehaviour
             Vector3 mousePosition = Input.mousePosition;
             mousePosition.z = 10f; // Ajusta la distancia desde la cámara
 
-            Vector3 worldPosition = Camera.main.ScreenToWorldPoint(mousePosition);
-
+            worldPosition = Camera.main.ScreenToWorldPoint(mousePosition);
+            circlePosition = mousePosition;
+            
             // Borra el círculo anterior
             renderizador.positionCount = 0;
 
             // Dibuja un nuevo círculo en la posición del clic
-            Dibujar(10, 0.05f, worldPosition.x, worldPosition.y);
+            Dibujar(10, 0.1f, worldPosition.x, worldPosition.y);
         }
     }
 
@@ -45,5 +48,9 @@ public class Circular : MonoBehaviour
         }
     }
 
-
+    public Vector3 GetCirclePosition()
+    {
+        return worldPosition;
+    }
 }
+
