@@ -1,2 +1,2 @@
 # MUCFO_Proyect
-Me falta la nada misma.
+Esta terminado, sólo falta amononarlo.
